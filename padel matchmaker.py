@@ -66,7 +66,6 @@ def buat_ronde_otomatis():
 if st.session_state.game_state == "PENDAFTARAN":
     st.subheader("👥 Pendaftaran Pemain")
     nama_raw = st.text_area("Masukkan nama-nama pemain (Satu nama per baris / Tekan Enter):", 
-                            value="Malik\nSakti\nBudi\nAndi\nCici\nZaki")
 
     daftar_pemain = [nama.strip() for nama in nama_raw.split("\n") if nama.strip() != ""]
     jumlah_pemain = len(daftar_pemain)
