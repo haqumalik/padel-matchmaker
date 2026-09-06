@@ -277,7 +277,7 @@ elif state()["screen"] == "playing":
         
     st.divider(); st.subheader("Klasemen live"); st.dataframe(standings(), use_container_width=True)
     
-    with st.expander("Pengaturan sesi"):
+with st.expander("Pengaturan sesi"):
     st.warning(
         "Jika pertandingan diakhiri, seluruh data sesi saat ini "
         "akan dihapus dan kamu harus memasukkan nama pemain lagi."
