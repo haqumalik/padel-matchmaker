@@ -19,24 +19,34 @@ st.markdown("""<style>
 
 
 def default_state():
-    return {"screen": "setup", "players": {}, "round": 1, "active_round": [], "courts": 1,
-            "meeting_target": 1, "meetings": {}, "history": [], "pending_scores": {}, "event_name": "Padel Play"}
+    return {
+        "screen": "setup",
+        "players": {},
+        "round": 1,
+        "active_round": [],
+        "courts": 1,
+        "meeting_target": 1,
+        "meetings": {},
+        "history": [],
+        "pending_scores": {},
+        "event_name": "Padel Play"
+    }
 
 
 storage = LocalStorage()
 
-if "storage_checked" not in st.session_state:
-    st.session_state.storage_checked = False
-
 
 def load_saved():
-    raw = storage.getItem(STORE_KEY)
+    raw = st.session_state.get("padel_saved_raw")
 
     if raw is None:
         return None
 
+    if not isinstance(raw, str):
+        return None
+
     try:
-        saved = json.loads(raw) if isinstance(raw, str) else raw
+        saved = json.loads(raw)
     except (TypeError, json.JSONDecodeError):
         return None
 
@@ -53,6 +63,18 @@ def load_saved():
 
 
 if "padel" not in st.session_state:
+
+    if "padel_storage_loaded" not in st.session_state:
+
+        st.session_state.padel_storage_loaded = False
+
+        storage.getItem(
+            STORE_KEY,
+            key="padel_saved_raw"
+        )
+
+        st.stop()
+
     saved_state = load_saved()
 
     if saved_state is not None:
@@ -72,6 +94,8 @@ def persist():
     )
 
     storage.setItem(STORE_KEY, data)
+
+    time.sleep(1.5)
 
 
 def reset():
