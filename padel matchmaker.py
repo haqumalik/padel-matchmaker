@@ -275,27 +275,41 @@ elif state()["screen"] == "playing":
             save_round(scores)
             st.rerun()
         
-    st.divider(); st.subheader("Klasemen live"); st.dataframe(standings(), use_container_width=True)
-    
-with st.expander("Pengaturan sesi"):
-    st.warning(
-        "Jika pertandingan diakhiri, seluruh data sesi saat ini "
-        "akan dihapus dan kamu harus memasukkan nama pemain lagi."
-    )
+        st.divider()
+    st.subheader("Klasemen live")
+    st.dataframe(standings(), use_container_width=True)
+
+    with st.expander("Pengaturan sesi"):
+        st.warning(
+            "Jika pertandingan diakhiri, seluruh data sesi saat ini "
+            "akan dihapus dan kamu harus memasukkan nama pemain lagi."
+        )
+
+        if st.button(
+            "Akhiri pertandingan & mulai sesi baru",
+            type="secondary",
+            use_container_width=True
+        ):
+            reset()
+            st.rerun()
+
+
+else:
+    st.balloons()
+    st.subheader("🏆 Sesi selesai!")
+
+    table = standings()
+
+    if not table.empty:
+        st.success(
+            f"Juara hari ini: **{table.iloc[0]['Pemain']}** — selamat! 🎉"
+        )
+        st.dataframe(table, use_container_width=True)
 
     if st.button(
-        "Akhiri pertandingan & mulai sesi baru",
-        type="secondary",
+        "Buat sesi baru",
+        type="primary",
         use_container_width=True
     ):
         reset()
         st.rerun()
-
-else:
-    st.balloons(); st.subheader("🏆 Sesi selesai!")
-    table = standings()
-    if not table.empty:
-        st.success(f"Juara hari ini: **{table.iloc[0]['Pemain']}** — selamat! 🎉")
-        st.dataframe(table, use_container_width=True)
-    if st.button("Buat sesi baru", type="primary", use_container_width=True):
-        reset(); st.rerun()
