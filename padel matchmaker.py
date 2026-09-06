@@ -277,10 +277,18 @@ elif state()["screen"] == "playing":
         
     st.divider(); st.subheader("Klasemen live"); st.dataframe(standings(), use_container_width=True)
     with st.expander("Pengaturan sesi"):
-        if st.button("Akhiri sesi sekarang"):
-            s["screen"] = "finished"; persist(); st.rerun()
-        if st.button("Reset sesi"):
-            reset(); st.rerun()
+    st.warning(
+        "Jika pertandingan diakhiri, seluruh data sesi saat ini "
+        "akan dihapus dan kamu harus memasukkan nama pemain lagi."
+    )
+
+    if st.button(
+        "Akhiri pertandingan & mulai sesi baru",
+        type="secondary",
+        use_container_width=True
+    ):
+        reset()
+        st.rerun()
 
 else:
     st.balloons(); st.subheader("🏆 Sesi selesai!")
