@@ -113,14 +113,6 @@ def score_keys(court):
     return f"score_a_{state()['round']}_{court}", f"score_b_{state()['round']}_{court}"
 
 
-def sync_score(court, changed):
-    a_key, b_key = score_keys(court)
-    changed_key, other_key = (a_key, b_key) if changed == "a" else (b_key, a_key)
-    st.session_state[other_key] = TOTAL_SCORE - int(st.session_state[changed_key])
-    state()["pending_scores"][str(court)] = [st.session_state[a_key], st.session_state[b_key]]
-    persist()
-
-
 def save_round(scores):
     s = state()
     for match, (score_a, score_b) in zip(s["active_round"], scores):
@@ -174,32 +166,115 @@ if state()["screen"] == "setup":
 elif state()["screen"] == "playing":
     s, total = state(), len(state()["players"])
     playing = len(s["active_round"]) * 4
+
     a, b, c = st.columns(3)
-    a.metric("Ronde", s["round"]); b.metric("Main sekarang", f"{playing}/{total}"); c.metric("Istirahat", total - playing)
+    a.metric("Ronde", s["round"])
+    b.metric("Main sekarang", f"{playing}/{total}")
+    c.metric("Istirahat", total - playing)
+
     st.subheader(f"Ronde {s['round']} · pasangan sudah diacak")
-    active = {p for match in s["active_round"] for team in (match["team_a"], match["team_b"]) for p in team}
+
+    active = {
+        p
+        for match in s["active_round"]
+        for team in (match["team_a"], match["team_b"])
+        for p in team
+    }
+
     rest = [p for p in s["players"] if p not in active]
+
     if rest:
         st.caption("☕ Istirahat ronde ini: " + " · ".join(rest))
+
     scores = []
+
     for court, match in enumerate(s["active_round"], 1):
         a_key, b_key = score_keys(court)
-        initial = s["pending_scores"].get(str(court), [0, TOTAL_SCORE])
+
+        initial = s["pending_scores"].get(
+            str(court),
+            [0, TOTAL_SCORE]
+        )
+
         if a_key not in st.session_state:
-            st.session_state[a_key], st.session_state[b_key] = initial
+            st.session_state[a_key] = initial[0]
+
+        if b_key not in st.session_state:
+            st.session_state[b_key] = initial[1]
+
         left, right = st.columns(2)
+
         with left:
-            st.markdown(f"<div class='court-card'><div class='small-label'>Lapangan {court}</div><p class='team-a'>🟢 {' & '.join(match['team_a'])}</p>", unsafe_allow_html=True)
-            score_a = st.number_input(f"Skor hijau · L{court}", 0, TOTAL_SCORE, key=a_key, on_change=sync_score, args=(court, "a"))
+            st.markdown(
+                f"""
+                <div class='court-card'>
+                    <div class='small-label'>Lapangan {court}</div>
+                    <p class='team-a'>
+                        🟢 {' & '.join(match['team_a'])}
+                    </p>
+                """,
+                unsafe_allow_html=True
+            )
+
+            score_a = st.number_input(
+                f"Skor hijau · L{court}",
+                min_value=0,
+                max_value=TOTAL_SCORE,
+                key=a_key
+            )
+
             st.markdown("</div>", unsafe_allow_html=True)
+
         with right:
-            st.markdown(f"<div class='court-card'><div class='small-label'>Lapangan {court}</div><p class='team-b'>🔵 {' & '.join(match['team_b'])}</p>", unsafe_allow_html=True)
-            score_b = st.number_input(f"Skor biru · L{court}", 0, TOTAL_SCORE, key=b_key, on_change=sync_score, args=(court, "b"))
+            st.markdown(
+                f"""
+                <div class='court-card'>
+                    <div class='small-label'>Lapangan {court}</div>
+                    <p class='team-b'>
+                        🔵 {' & '.join(match['team_b'])}
+                    </p>
+                """,
+                unsafe_allow_html=True
+            )
+
+            score_b = st.number_input(
+                f"Skor biru · L{court}",
+                min_value=0,
+                max_value=TOTAL_SCORE,
+                key=b_key
+            )
+
             st.markdown("</div>", unsafe_allow_html=True)
+
         scores.append((score_a, score_b))
-    if st.button("Simpan skor & acak ronde berikutnya", type="primary", use_container_width=True):
-        save_round(scores)
-        st.rerun()
+
+
+    invalid_scores = [
+        (a, b)
+        for a, b in scores
+        if a + b != TOTAL_SCORE
+    ]
+
+    if invalid_scores:
+        st.warning(
+            f"Total skor setiap pertandingan harus {TOTAL_SCORE}. "
+            "Contoh yang valid: 15–6."
+        )
+
+
+    if st.button(
+        "Simpan skor & acak ronde berikutnya",
+        type="primary",
+        use_container_width=True
+    ):
+        if invalid_scores:
+            st.error(
+                f"Skor belum valid. Total skor setiap pertandingan harus {TOTAL_SCORE}."
+            )
+        else:
+            save_round(scores)
+            st.rerun()
+        
     st.divider(); st.subheader("Klasemen live"); st.dataframe(standings(), use_container_width=True)
     with st.expander("Pengaturan sesi"):
         if st.button("Akhiri sesi sekarang"):
