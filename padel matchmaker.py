@@ -1,5 +1,6 @@
 import json
 import random
+import time
 
 import pandas as pd
 import streamlit as st
@@ -29,7 +30,10 @@ if "storage_checked" not in st.session_state:
 
 
 def load_saved():
-    raw = storage.getItem(STORE_KEY)
+    raw = storage.getItem(
+        STORE_KEY,
+        key="padel_restore_state"
+    )
 
     if raw is None:
         return None
@@ -42,10 +46,7 @@ def load_saved():
     if not isinstance(saved, dict):
         return None
 
-    if "players" not in saved:
-        return None
-
-    if not saved["players"]:
+    if not saved.get("players"):
         return None
 
     result = default_state()
@@ -60,7 +61,6 @@ if "padel" not in st.session_state:
 
     if saved_state is not None:
         st.session_state.padel = saved_state
-
     else:
         st.session_state.padel = default_state()
 
@@ -70,12 +70,25 @@ def state():
 
 
 def persist():
-    storage.setItem(STORE_KEY, json.dumps(state(), ensure_ascii=False))
+    data = json.dumps(
+        state(),
+        ensure_ascii=False
+    )
+
+    storage.setItem(
+        STORE_KEY,
+        data
+    )
+
+    time.sleep(1.5)
 
 
 def reset():
     st.session_state.padel = default_state()
+
     storage.eraseItem(STORE_KEY)
+
+    time.sleep(1.0)
 
 
 def record():
