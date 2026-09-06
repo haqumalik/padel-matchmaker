@@ -24,22 +24,45 @@ def default_state():
 
 storage = LocalStorage()
 
+if "storage_checked" not in st.session_state:
+    st.session_state.storage_checked = False
+
 
 def load_saved():
     raw = storage.getItem(STORE_KEY)
+
+    if raw is None:
+        return None
+
     try:
         saved = json.loads(raw) if isinstance(raw, str) else raw
     except (TypeError, json.JSONDecodeError):
         return None
-    if not isinstance(saved, dict) or "meeting_target" not in saved:
+
+    if not isinstance(saved, dict):
         return None
+
+    if "players" not in saved:
+        return None
+
+    if not saved["players"]:
+        return None
+
     result = default_state()
     result.update(saved)
+
     return result
 
 
 if "padel" not in st.session_state:
-    st.session_state.padel = load_saved() or default_state()
+
+    saved_state = load_saved()
+
+    if saved_state is not None:
+        st.session_state.padel = saved_state
+
+    else:
+        st.session_state.padel = default_state()
 
 
 def state():
@@ -345,6 +368,18 @@ st.markdown(f"<div class='hero'><div class='small-label'>Social Padel Manager</d
 
 if state()["screen"] == "setup":
     st.subheader("Mulai sesi baru")
+    saved_state = load_saved()
+
+if saved_state is not None and saved_state.get("players"):
+    st.success("Sesi sebelumnya ditemukan.")
+
+    if st.button(
+        "🔄 Pulihkan sesi terakhir",
+        type="primary",
+        use_container_width=True
+    ):
+        st.session_state.padel = saved_state
+        st.rerun()
     st.caption("Masukkan pemain, jumlah lapangan, dan berapa kali setiap pemain perlu bertemu pemain lain.")
     name = st.text_input("Nama sesi", value=state()["event_name"])
     names_text = st.text_area("Daftar pemain", placeholder="Satu nama per baris\nAlya\nBima\nCitra", height=190)
