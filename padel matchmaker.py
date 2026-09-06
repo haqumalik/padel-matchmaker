@@ -67,36 +67,242 @@ def pair_count(a, b):
     return state()["meetings"].get(pair_key(a, b), 0)
 
 
-def cycle_complete():
+def partner_count(a, b):
+    """Berapa kali A dan B pernah menjadi partner."""
+    count = 0
+
+    for match in state()["history"]:
+        team_a = match["match"]["team_a"]
+        team_b = match["match"]["team_b"]
+
+        if a in team_a and b in team_a:
+            count += 1
+
+        if a in team_b and b in team_b:
+            count += 1
+
+    return count
+
+
+def opponent_count(a, b):
+    """Berapa kali A dan B pernah menjadi lawan."""
+    count = 0
+
+    for match in state()["history"]:
+        team_a = match["match"]["team_a"]
+        team_b = match["match"]["team_b"]
+
+        if (a in team_a and b in team_b) or (a in team_b and b in team_a):
+            count += 1
+
+    return count
+
+
+def player_play_count(player):
+    """Jumlah pertandingan yang sudah dimainkan pemain."""
+    return state()["players"][player]["played"]
+
+
+def all_partner_combinations_used():
+    """True jika semua pasangan pemain sudah pernah menjadi partner."""
     people = list(state()["players"])
-    return all(pair_count(a, b) >= state()["meeting_target"] for i, a in enumerate(people) for b in people[i + 1:])
+
+    for i, a in enumerate(people):
+        for b in people[i + 1:]:
+            if partner_count(a, b) == 0:
+                return False
+
+    return True
 
 
 def choose_round():
-    """Favor players and groups with the fewest previous encounters."""
-    s, people = state(), list(state()["players"])
-    slots = min(len(people) // 4, s["courts"]) * 4
-    if slots < 4 or cycle_complete():
-        s["screen"], s["active_round"] = "finished", []
+    """
+    Membuat ronde seadil mungkin.
+
+    Prioritas:
+    1. Pemain dengan jumlah pertandingan paling sedikit.
+    2. Partner yang belum pernah dimainkan.
+    3. Hindari lawan yang terlalu sering sama.
+    4. Jika semua partner sudah pernah, mulai mengulang partner
+       dengan jumlah pertemuan paling sedikit.
+    """
+
+    s = state()
+    people = list(s["players"])
+
+    max_slots = s["courts"] * 4
+
+    if len(people) < 4:
+        s["screen"] = "finished"
+        s["active_round"] = []
         return
-    random.shuffle(people)
-    people.sort(key=lambda p: (sum(pair_count(p, other) for other in s["players"] if p != other), s["players"][p]["played"]))
-    selected = []
-    while people and len(selected) < slots:
-        player = min(people, key=lambda p: (sum(pair_count(p, other) for other in selected), s["players"][p]["played"], random.random()))
-        selected.append(player)
-        people.remove(player)
+
+    # -----------------------------------------
+    # PILIH PEMAIN YANG AKAN BERMAIN
+    # -----------------------------------------
+
+    # Cari jumlah pertandingan paling sedikit
+    min_played = min(
+        player_play_count(p)
+        for p in people
+    )
+
+    # Pemain yang paling membutuhkan kesempatan bermain
+    candidates = [
+        p for p in people
+        if player_play_count(p) == min_played
+    ]
+
+    # Tambahkan pemain berikutnya jika lapangan masih kosong
+    remaining = [
+        p for p in people
+        if p not in candidates
+    ]
+
+    random.shuffle(candidates)
+    random.shuffle(remaining)
+
+    selected = candidates[:]
+
+    # Isi slot sampai kapasitas lapangan
+    while len(selected) < min(max_slots, len(people)) and remaining:
+
+        # Pilih pemain dengan jumlah main paling sedikit
+        best_player = min(
+            remaining,
+            key=lambda p: (
+                player_play_count(p),
+                sum(
+                    partner_count(p, other)
+                    for other in selected
+                ),
+                random.random()
+            )
+        )
+
+        selected.append(best_player)
+        remaining.remove(best_player)
+
+    # Pastikan jumlah pemain kelipatan 4
+    selected = selected[:(len(selected) // 4) * 4]
+
+    if len(selected) < 4:
+        s["screen"] = "finished"
+        s["active_round"] = []
+        return
+
+    # -----------------------------------------
+    # BUAT MATCH
+    # -----------------------------------------
+
     matches = []
+
     while selected:
-        group = [selected.pop(0)]
+
+        # Ambil pemain pertama
+        first = selected.pop(0)
+
+        # Cari 3 pemain lain untuk membentuk 1 court
+        group = [first]
+
         while len(group) < 4:
-            player = min(selected, key=lambda p: (sum(pair_count(p, other) for other in group), random.random()))
+
+            def player_score(player):
+
+                # Seberapa sering player menjadi partner
+                # dengan anggota group
+                partner_score = sum(
+                    partner_count(player, teammate)
+                    for teammate in group
+                )
+
+                # Seberapa sering player menjadi lawan
+                # dengan anggota group
+                opponent_score = sum(
+                    opponent_count(player, teammate)
+                    for teammate in group
+                )
+
+                # Prioritaskan partner yang belum pernah
+                # menjadi partner
+                new_partner_bonus = sum(
+                    1
+                    for teammate in group
+                    if partner_count(player, teammate) == 0
+                )
+
+                return (
+                    partner_score,
+                    opponent_score,
+                    -new_partner_bonus,
+                    player_play_count(player),
+                    random.random()
+                )
+
+            player = min(
+                selected,
+                key=player_score
+            )
+
             group.append(player)
             selected.remove(player)
+
         a, b, c, d = group
-        pairings = [([a, b], [c, d]), ([a, c], [b, d]), ([a, d], [b, c])]
-        team_a, team_b = min(pairings, key=lambda teams: sum(pair_count(*team) for team in teams))
-        matches.append({"team_a": team_a, "team_b": team_b})
+
+        # -----------------------------------------
+        # 3 KEMUNGKINAN KOMBINASI PARTNER
+        # -----------------------------------------
+
+        pairings = [
+            ([a, b], [c, d]),
+            ([a, c], [b, d]),
+            ([a, d], [b, c]),
+        ]
+
+        def pairing_score(pairing):
+
+            team_a, team_b = pairing
+
+            # Partner score
+            partner_score = (
+                partner_count(*team_a)
+                + partner_count(*team_b)
+            )
+
+            # Opponent score
+            opponent_score = sum(
+                opponent_count(player_a, player_b)
+                for player_a in team_a
+                for player_b in team_b
+            )
+
+            # Jumlah partner yang belum pernah
+            new_partners = sum(
+                1
+                for team in pairing
+                if partner_count(*team) == 0
+            )
+
+            return (
+                partner_score,
+                opponent_score,
+                -new_partners,
+                random.random()
+            )
+
+        # Pilih kombinasi paling adil
+        best_pairing = min(
+            pairings,
+            key=pairing_score
+        )
+
+        team_a, team_b = best_pairing
+
+        matches.append({
+            "team_a": team_a,
+            "team_b": team_b
+        })
+
     s["active_round"] = matches
 
 
@@ -146,7 +352,13 @@ if state()["screen"] == "setup":
     with left:
         courts = st.selectbox("Lapangan aktif", [1, 2, 3])
     with right:
-        target = st.number_input("Ronde per lawan", min_value=1, max_value=10, value=1, help="Pilih 2 agar setiap pemain satu lapangan dengan setiap pemain lain minimal dua kali.")
+    target_games = st.number_input(
+        "Target main per pemain",
+        min_value=1,
+        max_value=10,
+        value=3,
+        help="Sistem akan berusaha membuat setiap pemain bermain sebanyak target ini dengan partner yang berbeda."
+    )
     names, seen = [], set()
     for item in names_text.splitlines():
         item = item.strip()
@@ -158,7 +370,7 @@ if state()["screen"] == "setup":
         st.warning("Butuh minimal 4 pemain untuk memulai.")
     elif st.button("Mulai & acak ronde pertama", type="primary", use_container_width=True):
         s = state()
-        s.update({"event_name": name.strip() or "Padel Play", "players": {p: record() for p in names}, "courts": courts, "meeting_target": int(target), "meetings": {}, "round": 1, "screen": "playing", "history": [], "pending_scores": {}})
+        s.update({"event_name": name.strip() or "Padel Play", "players": {p: record() for p in names}, "courts": courts, "meeting_target": 1, "target_games": int(target_games), "meetings": {}, "round": 1, "screen": "playing", "history": [], "pending_scores": {}})
         choose_round()
         persist()
         st.rerun()
