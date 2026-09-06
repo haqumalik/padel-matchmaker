@@ -352,14 +352,8 @@ if state()["screen"] == "setup":
     with left:
         courts = st.selectbox("Lapangan aktif", [1, 2, 3])
     with right:
-        target_games = st.number_input(
-            "Target main per pemain",
-            min_value=1,
-            max_value=10,
-            value=3,
-            help="Sistem akan berusaha membuat setiap pemain bermain sebanyak target ini dengan partner yang berbeda."
-        )
-    names, seen = [], set()
+        st.info("Sistem akan mengatur rotasi pemain dan partner seadil mungkin.")
+        names, seen = [], set()
     for item in names_text.splitlines():
         item = item.strip()
         if item and item.casefold() not in seen:
@@ -370,7 +364,17 @@ if state()["screen"] == "setup":
         st.warning("Butuh minimal 4 pemain untuk memulai.")
     elif st.button("Mulai & acak ronde pertama", type="primary", use_container_width=True):
         s = state()
-        s.update({"event_name": name.strip() or "Padel Play", "players": {p: record() for p in names}, "courts": courts, "meeting_target": 1, "target_games": int(target_games), "meetings": {}, "round": 1, "screen": "playing", "history": [], "pending_scores": {}})
+        s.update({
+            "event_name": name.strip() or "Padel Play",
+            "players": {p: record() for p in names},
+            "courts": courts,
+            "meeting_target": 1,
+            "meetings": {},
+            "round": 1,
+            "screen": "playing",
+            "history": [],
+            "pending_scores": {}
+        })
         choose_round()
         persist()
         st.rerun()
