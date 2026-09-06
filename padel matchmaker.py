@@ -352,13 +352,13 @@ if state()["screen"] == "setup":
     with left:
         courts = st.selectbox("Lapangan aktif", [1, 2, 3])
     with right:
-    target_games = st.number_input(
-        "Target main per pemain",
-        min_value=1,
-        max_value=10,
-        value=3,
-        help="Sistem akan berusaha membuat setiap pemain bermain sebanyak target ini dengan partner yang berbeda."
-    )
+        target_games = st.number_input(
+            "Target main per pemain",
+            min_value=1,
+            max_value=10,
+            value=3,
+            help="Sistem akan berusaha membuat setiap pemain bermain sebanyak target ini dengan partner yang berbeda."
+        )
     names, seen = [], set()
     for item in names_text.splitlines():
         item = item.strip()
