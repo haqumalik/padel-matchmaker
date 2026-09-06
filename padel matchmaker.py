@@ -30,10 +30,7 @@ if "storage_checked" not in st.session_state:
 
 
 def load_saved():
-    raw = storage.getItem(
-        STORE_KEY,
-        key="padel_restore_state"
-    )
+    raw = storage.getItem(STORE_KEY)
 
     if raw is None:
         return None
@@ -56,7 +53,6 @@ def load_saved():
 
 
 if "padel" not in st.session_state:
-
     saved_state = load_saved()
 
     if saved_state is not None:
@@ -75,12 +71,7 @@ def persist():
         ensure_ascii=False
     )
 
-    storage.setItem(
-        STORE_KEY,
-        data
-    )
-
-    time.sleep(1.5)
+    storage.setItem(STORE_KEY, data)
 
 
 def reset():
@@ -381,18 +372,6 @@ st.markdown(f"<div class='hero'><div class='small-label'>Social Padel Manager</d
 
 if state()["screen"] == "setup":
     st.subheader("Mulai sesi baru")
-    saved_state = load_saved()
-
-if saved_state is not None and saved_state.get("players"):
-    st.success("Sesi sebelumnya ditemukan.")
-
-    if st.button(
-        "🔄 Pulihkan sesi terakhir",
-        type="primary",
-        use_container_width=True
-    ):
-        st.session_state.padel = saved_state
-        st.rerun()
     st.caption("Masukkan pemain, jumlah lapangan, dan berapa kali setiap pemain perlu bertemu pemain lain.")
     name = st.text_input("Nama sesi", value=state()["event_name"])
     names_text = st.text_area("Daftar pemain", placeholder="Satu nama per baris\nAlya\nBima\nCitra", height=190)
