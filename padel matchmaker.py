@@ -12,9 +12,31 @@ STORE_KEY = "padel-play-session"
 st.set_page_config(page_title="Padel Play", page_icon="🎾", layout="centered")
 
 st.markdown("""<style>
-.stApp {background:#fbfaf6;color:#18251d}.block-container{max-width:760px;padding-top:1.2rem;padding-bottom:3rem}
-.hero{background:linear-gradient(125deg,#163c2b,#287a4f 65%,#b6e64c);color:#fff;border-radius:24px;padding:24px;margin-bottom:18px}.hero h1{margin:0;color:#fff}
-.court-card{background:#fff;border:1px solid #e7eadf;border-radius:18px;padding:18px;margin:12px 0}.team-a{color:#147a4c;font-weight:700}.team-b{color:#2465b0;font-weight:700}.small-label{color:#6d756e;font-size:.83rem;text-transform:uppercase}.stButton>button{border-radius:12px;font-weight:700;min-height:44px}
+/* Latar berlapis: garis lapangan, bola, dan cahaya sore yang halus. */
+.stApp {
+    color:#17251d;
+    background-color:#eef3e6;
+    background-image:
+        radial-gradient(circle at 8% 14%, rgba(183, 229, 99, .62) 0 4.5rem, transparent 4.6rem),
+        radial-gradient(circle at 92% 8%, rgba(85, 160, 111, .20) 0 8rem, transparent 8.1rem),
+        radial-gradient(circle at 88% 78%, rgba(244, 190, 71, .24) 0 5.5rem, transparent 5.6rem),
+        linear-gradient(120deg, transparent 49.65%, rgba(36, 104, 69, .07) 49.8% 50.2%, transparent 50.35%),
+        linear-gradient(90deg, rgba(255,255,255,.50) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.50) 1px, transparent 1px),
+        linear-gradient(145deg, #f8f5df 0%, #eaf2e3 50%, #dcebdc 100%);
+    background-size:auto, auto, auto, auto, 42px 42px, 42px 42px, auto;
+    background-attachment:fixed;
+}
+.block-container{max-width:760px;padding-top:1.2rem;padding-bottom:3rem}
+.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#123c2a,#287a4f 65%,#9bd54d);color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 16px 30px rgba(23,76,47,.20)}
+.hero:after{content:"";position:absolute;width:130px;height:130px;border:2px solid rgba(255,255,255,.28);border-radius:50%;right:-42px;top:-52px;box-shadow:0 0 0 16px rgba(255,255,255,.07),0 0 0 34px rgba(255,255,255,.05)}
+.hero h1,.hero p,.hero .small-label{position:relative;z-index:1}.hero h1{margin:0;color:#fff}.hero .small-label{color:#dff3c5}
+.court-card{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border:1px solid rgba(36,104,69,.15);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 8px 18px rgba(35,73,46,.07)}
+.team-a{color:#147a4c;font-weight:700}.team-b{color:#2465b0;font-weight:700}.small-label{color:#607365;font-size:.83rem;text-transform:uppercase;letter-spacing:.06em}
+.stButton>button{border-radius:12px;font-weight:700;min-height:44px;border-width:1px;box-shadow:0 4px 10px rgba(26,72,44,.10)}
+[data-testid="stExpander"]{background:rgba(255,255,255,.84);border:1px solid rgba(36,104,69,.16);border-radius:16px;box-shadow:0 8px 18px rgba(35,73,46,.06);overflow:hidden}
+[data-testid="stExpander"] summary{font-weight:700;color:#1d5939}
+[data-testid="stMetric"]{background:rgba(255,255,255,.68);border:1px solid rgba(36,104,69,.12);border-radius:14px;padding:10px}
 </style>""", unsafe_allow_html=True)
 
 
