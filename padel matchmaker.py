@@ -38,7 +38,31 @@ h1,h2,h3 { font-family:'Barlow Condensed',sans-serif !important; font-weight:800
 .round-head h2 { font-size:1.55rem !important; margin:0; }.match-meta { color:#7f858a; text-align:right; }
 .match-card { display:grid; grid-template-columns:1fr auto auto auto 1fr; gap:.7rem; align-items:center; border:1px solid #2a2c2f; border-radius:4px; background:#0c0d0e; min-height:70px; padding:.8rem .9rem; margin-bottom:.7rem; }
 [data-testid="stVerticalBlockBorderWrapper"] { border-color:#2a2c2f !important; background:#0c0d0e; border-radius:4px !important; margin-bottom:.7rem; }
-.team { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:1.05rem; line-height:1.05; }.team-right { text-align:right; }.team span { display:block; }.team-a span:first-child,.team-b span:first-child { color:#f8f9f3; }.team span:last-child { color:#72787e; }
+.team {
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:800;
+    font-size:1.05rem;
+    line-height:1.05;
+    position:relative;
+    top:-10px;
+}
+
+.team-right {
+    text-align:right;
+}
+
+.team span {
+    display:block;
+}
+
+.team-a span:first-child,
+.team-b span:first-child {
+    color:#f8f9f3;
+}
+
+.team span:last-child {
+    color:#72787e;
+}
 .score-separator { color:#54595d; font-weight:700; }.score-box { width:2.8rem; }.score-box [data-testid="stNumberInput"] { margin:0; }.score-box [data-testid="stNumberInput"] button { display:none; }.score-box input { text-align:center; height:2.25rem; padding:0 !important; }
 .rest { color:#7f858a; font-size:.7rem; padding:.55rem .7rem; border-left:2px solid var(--lime); background:#101112; margin-bottom:1rem; }
 .standings-wrap { padding-top:7vh; }.standings-wrap h1 { font-size:3rem !important; margin:.3rem 0 1.3rem; }
@@ -439,7 +463,7 @@ if state()["screen"] == "setup":
 
     st.markdown(
         f"<div class='player-count'>"
-        f"PLAYERS ({len(draft)}/16, MIN 4 — EVEN NUMBER)"
+        f"PLAYERS ({len(draft)}/16, MIN 4)"
         f"</div>",
         unsafe_allow_html=True
     )
@@ -480,19 +504,17 @@ if state()["screen"] == "setup":
         key="setup_courts"
     )
 
-    if len(draft) and len(draft) % 2:
-        st.caption(
-            "Tambahkan satu pemain lagi agar jumlah pemain genap."
-        )
-    elif len(draft) < 4:
+    if len(draft) < 4:
         st.caption(
             "Tambahkan minimal 4 pemain untuk memulai."
         )
+    elif len(draft) % 2 == 1:
+        st.caption(
+            "Jumlah pemain ganjil diperbolehkan. "
+            "Sistem akan mengatur pemain yang istirahat secara otomatis."
+        )
 
-    can_start = (
-        len(draft) >= 4
-        and len(draft) % 2 == 0
-    )
+    can_start = len(draft) >= 4
 
     if st.button(
         "SHUFFLE & START",
