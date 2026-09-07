@@ -37,16 +37,13 @@ storage = LocalStorage()
 
 
 def load_saved():
-    raw = st.session_state.get("padel_saved_raw")
+    raw = storage.getItem(STORE_KEY)
 
     if raw is None:
         return None
 
-    if not isinstance(raw, str):
-        return None
-
     try:
-        saved = json.loads(raw)
+        saved = json.loads(raw) if isinstance(raw, str) else raw
     except (TypeError, json.JSONDecodeError):
         return None
 
@@ -63,17 +60,6 @@ def load_saved():
 
 
 if "padel" not in st.session_state:
-
-    if "padel_storage_loaded" not in st.session_state:
-
-        st.session_state.padel_storage_loaded = False
-
-        storage.getItem(
-            STORE_KEY,
-            key="padel_saved_raw"
-        )
-
-        st.stop()
 
     saved_state = load_saved()
 
