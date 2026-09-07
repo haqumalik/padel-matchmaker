@@ -12,31 +12,40 @@ STORE_KEY = "padel-play-session"
 st.set_page_config(page_title="Padel Play", page_icon="🎾", layout="centered")
 
 st.markdown("""<style>
-/* Latar berlapis: garis lapangan, bola, dan cahaya sore yang halus. */
-.stApp {
-    color:#17251d;
-    background-color:#eef3e6;
-    background-image:
-        radial-gradient(circle at 8% 14%, rgba(183, 229, 99, .62) 0 4.5rem, transparent 4.6rem),
-        radial-gradient(circle at 92% 8%, rgba(85, 160, 111, .20) 0 8rem, transparent 8.1rem),
-        radial-gradient(circle at 88% 78%, rgba(244, 190, 71, .24) 0 5.5rem, transparent 5.6rem),
-        linear-gradient(120deg, transparent 49.65%, rgba(36, 104, 69, .07) 49.8% 50.2%, transparent 50.35%),
-        linear-gradient(90deg, rgba(255,255,255,.50) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,.50) 1px, transparent 1px),
-        linear-gradient(145deg, #f8f5df 0%, #eaf2e3 50%, #dcebdc 100%);
-    background-size:auto, auto, auto, auto, 42px 42px, 42px 42px, auto;
-    background-attachment:fixed;
-}
-.block-container{max-width:760px;padding-top:1.2rem;padding-bottom:3rem}
-.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#123c2a,#287a4f 65%,#9bd54d);color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 16px 30px rgba(23,76,47,.20)}
-.hero:after{content:"";position:absolute;width:130px;height:130px;border:2px solid rgba(255,255,255,.28);border-radius:50%;right:-42px;top:-52px;box-shadow:0 0 0 16px rgba(255,255,255,.07),0 0 0 34px rgba(255,255,255,.05)}
-.hero h1,.hero p,.hero .small-label{position:relative;z-index:1}.hero h1{margin:0;color:#fff}.hero .small-label{color:#dff3c5}
-.court-card{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border:1px solid rgba(36,104,69,.15);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 8px 18px rgba(35,73,46,.07)}
-.team-a{color:#147a4c;font-weight:700}.team-b{color:#2465b0;font-weight:700}.small-label{color:#607365;font-size:.83rem;text-transform:uppercase;letter-spacing:.06em}
-.stButton>button{border-radius:12px;font-weight:700;min-height:44px;border-width:1px;box-shadow:0 4px 10px rgba(26,72,44,.10)}
-[data-testid="stExpander"]{background:rgba(255,255,255,.84);border:1px solid rgba(36,104,69,.16);border-radius:16px;box-shadow:0 8px 18px rgba(35,73,46,.06);overflow:hidden}
-[data-testid="stExpander"] summary{font-weight:700;color:#1d5939}
-[data-testid="stMetric"]{background:rgba(255,255,255,.68);border:1px solid rgba(36,104,69,.12);border-radius:14px;padding:10px}
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Mono:wght@400;500;700&display=swap');
+:root { --lime:#c7ff18; --ink:#080909; --panel:#0e0f10; --line:#292b2d; --muted:#777d83; }
+.stApp { color:#f4f5ef; background:var(--ink); font-family:'DM Mono',monospace; }
+.block-container { max-width:760px; padding:1.6rem 1.5rem 4rem; }
+#MainMenu, footer, header { visibility:hidden; }
+h1,h2,h3 { font-family:'Barlow Condensed',sans-serif !important; font-weight:800 !important; letter-spacing:.015em; color:#f9faf5 !important; }
+.eyebrow,.field-label,.match-meta,.nav-copy { font-size:.63rem; letter-spacing:.13em; text-transform:uppercase; font-weight:700; }
+.topbar { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); padding:0 0 1rem; margin-bottom:2.2rem; }
+.brand { color:var(--lime); text-align:center; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:.95rem; letter-spacing:.12em; line-height:1; }
+.brand span { display:block; color:#797d81; font-family:'DM Mono',monospace; font-size:.53rem; letter-spacing:.1em; margin-top:.3rem; }
+.nav-copy { color:#858a8e; min-width:92px; }.nav-copy.right { text-align:right; }
+.setup-wrap { max-width:383px; margin:0 auto; padding-top:8vh; }
+.setup-wrap h1 { font-size:3.15rem !important; line-height:.83; margin:.45rem 0 1.9rem; }
+.eyebrow { color:var(--lime); }.field-label { color:#858a8e; margin-bottom:.45rem; }
+.stTextInput input, [data-testid="stNumberInput"] input { background:#111214 !important; color:#f4f5ef !important; border:1px solid #2b2d30 !important; border-radius:4px !important; font-family:'DM Mono',monospace !important; font-weight:700; }
+.stTextInput input { height:2.4rem; }
+.player-count { color:#858a8e; font-size:.64rem; margin-bottom:.55rem; }
+.player-chip { display:inline-block; background:#151618; border:1px solid #303236; color:#f7f8f2; padding:.28rem .55rem; border-radius:3px; margin:0 .35rem .4rem 0; font-size:.7rem; }
+.player-chip b { color:#81868c; margin-left:.3rem; }
+.stButton>button { min-height:2.35rem; border-radius:4px; border:1px solid #333538; background:#161719; color:#f6f7f1; font-family:'Barlow Condensed',sans-serif; font-size:.86rem; font-weight:800; letter-spacing:.08em; box-shadow:none; }
+.stButton>button[kind="primary"] { background:var(--lime); color:#0a0b0b; border-color:var(--lime); }
+.stButton>button:hover { border-color:var(--lime); color:var(--lime); }.stButton>button[kind="primary"]:hover { color:#080909; background:#d4ff4d; }
+.main-title { font-size:1.65rem !important; margin:1.2rem 0 .7rem; }.round-head { display:flex; align-items:end; justify-content:space-between; margin:1.7rem 0 .7rem; border-bottom:1px solid var(--line); padding-bottom:.55rem; }
+.round-head h2 { font-size:1.55rem !important; margin:0; }.match-meta { color:#7f858a; text-align:right; }
+.match-card { display:grid; grid-template-columns:1fr auto auto auto 1fr; gap:.7rem; align-items:center; border:1px solid #2a2c2f; border-radius:4px; background:#0c0d0e; min-height:70px; padding:.8rem .9rem; margin-bottom:.7rem; }
+[data-testid="stVerticalBlockBorderWrapper"] { border-color:#2a2c2f !important; background:#0c0d0e; border-radius:4px !important; margin-bottom:.7rem; }
+.team { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:1.05rem; line-height:1.05; }.team-right { text-align:right; }.team span { display:block; }.team-a span:first-child,.team-b span:first-child { color:#f8f9f3; }.team span:last-child { color:#72787e; }
+.score-separator { color:#54595d; font-weight:700; }.score-box { width:2.8rem; }.score-box [data-testid="stNumberInput"] { margin:0; }.score-box [data-testid="stNumberInput"] button { display:none; }.score-box input { text-align:center; height:2.25rem; padding:0 !important; }
+.rest { color:#7f858a; font-size:.7rem; padding:.55rem .7rem; border-left:2px solid var(--lime); background:#101112; margin-bottom:1rem; }
+.standings-wrap { padding-top:7vh; }.standings-wrap h1 { font-size:3rem !important; margin:.3rem 0 1.3rem; }
+[data-testid="stDataFrame"] { border:1px solid #2a2c2f; border-radius:4px; overflow:hidden; }
+[data-testid="stDataFrame"] * { font-family:'DM Mono',monospace !important; }
+.winner { color:var(--lime); font-family:'Barlow Condensed',sans-serif; font-size:1.35rem; margin-bottom:1rem; }
+@media (max-width:520px) { .block-container { padding-left:1rem; padding-right:1rem; } .match-card { gap:.38rem; padding:.7rem .55rem; } .team { font-size:.9rem; } .score-box { width:2.35rem; } }
 </style>""", unsafe_allow_html=True)
 
 
@@ -112,6 +121,21 @@ def reset():
     storage.eraseItem(STORE_KEY)
 
     time.sleep(1.0)
+
+def add_draft_player():
+    name = st.session_state.get("player_name", "").strip()
+    draft = st.session_state.setdefault("draft_players", [])
+
+    if (
+        len(draft) < 16
+        and name
+        and name.casefold() not in {
+            player.casefold() for player in draft
+        }
+    ):
+        draft.append(name)
+
+    st.session_state.player_name = ""
 
 
 def record():
@@ -403,30 +427,88 @@ def save_round(scores):
 st.markdown(f"<div class='hero'><div class='small-label'>Social Padel Manager</div><h1>🎾 {state()['event_name']}</h1><p>Putar pasangan. Catat skor. Biar semua kebagian main.</p></div>", unsafe_allow_html=True)
 
 if state()["screen"] == "setup":
-    st.subheader("Mulai sesi baru")
-    st.caption("Masukkan pemain, jumlah lapangan, dan berapa kali setiap pemain perlu bertemu pemain lain.")
-    name = st.text_input("Nama sesi", value=state()["event_name"])
-    names_text = st.text_area("Daftar pemain", placeholder="Satu nama per baris\nMalik\nSakti\nJeki", height=190)
-    left, right = st.columns(2)
-    with left:
-        courts = st.selectbox("Lapangan aktif", [1, 2, 3])
-    with right:
-        st.info("Sistem akan mengatur rotasi pemain dan partner seadil mungkin.")
-        names, seen = [], set()
-    for item in names_text.splitlines():
-        item = item.strip()
-        if item and item.casefold() not in seen:
-            names.append(item)
-            seen.add(item.casefold())
-    st.info(f"{len(names)} pemain terdeteksi · maksimal {courts * 4} pemain bermain per ronde")
-    if len(names) < 4:
-        st.warning("Butuh minimal 4 pemain untuk memulai.")
-    elif st.button("Mulai & acak ronde pertama", type="primary", use_container_width=True):
+    draft = st.session_state.setdefault("draft_players", [])
+
+    st.markdown(
+        "<div class='setup-wrap'>"
+        "<div class='eyebrow'>Padel Americano</div>"
+        "<h1>SETUP<br>TOURNAMENT</h1>"
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        f"<div class='player-count'>"
+        f"PLAYERS ({len(draft)}/16, MIN 4 — EVEN NUMBER)"
+        f"</div>",
+        unsafe_allow_html=True
+    )
+
+    name_col, add_col = st.columns([5, 1])
+
+    with name_col:
+        st.text_input(
+            "Player name",
+            placeholder="Player name",
+            key="player_name",
+            label_visibility="collapsed",
+            on_change=add_draft_player
+        )
+
+    with add_col:
+        st.button(
+            "Add",
+            type="primary",
+            use_container_width=True,
+            on_click=add_draft_player
+        )
+
+    if draft:
+        chips = "".join(
+            f"<span class='player-chip'>{player}</span>"
+            for player in draft
+        )
+
+        st.markdown(
+            chips,
+            unsafe_allow_html=True
+        )
+
+    st.selectbox(
+        "Lapangan aktif",
+        [1, 2, 3],
+        key="setup_courts"
+    )
+
+    if len(draft) and len(draft) % 2:
+        st.caption(
+            "Tambahkan satu pemain lagi agar jumlah pemain genap."
+        )
+    elif len(draft) < 4:
+        st.caption(
+            "Tambahkan minimal 4 pemain untuk memulai."
+        )
+
+    can_start = (
+        len(draft) >= 4
+        and len(draft) % 2 == 0
+    )
+
+    if st.button(
+        "SHUFFLE & START",
+        type="primary",
+        use_container_width=True,
+        disabled=not can_start
+    ):
         s = state()
+
         s.update({
-            "event_name": name.strip() or "Padel Play",
-            "players": {p: record() for p in names},
-            "courts": courts,
+            "event_name": "Padel Play",
+            "players": {
+                p: record()
+                for p in draft
+            },
+            "courts": st.session_state.setup_courts,
             "meeting_target": 1,
             "meetings": {},
             "round": 1,
@@ -434,6 +516,7 @@ if state()["screen"] == "setup":
             "history": [],
             "pending_scores": {}
         })
+
         choose_round()
         persist()
         st.rerun()
@@ -442,12 +525,12 @@ elif state()["screen"] == "playing":
     s, total = state(), len(state()["players"])
     playing = len(s["active_round"]) * 4
 
-    a, b, c = st.columns(3)
-    a.metric("Ronde", s["round"])
-    b.metric("Main sekarang", f"{playing}/{total}")
-    c.metric("Istirahat", total - playing)
-
-    st.subheader(f"Ronde {s['round']} · pasangan sudah diacak")
+    st.markdown(
+        "<div class='round-head'>"
+        "<h2>PERTANDINGAN</h2>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     active = {
         p
@@ -465,62 +548,70 @@ elif state()["screen"] == "playing":
 
     for court, match in enumerate(s["active_round"], 1):
         a_key, b_key = score_keys(court)
-
+    
         initial = s["pending_scores"].get(
             str(court),
             [0, TOTAL_SCORE]
         )
-
+    
         if a_key not in st.session_state:
             st.session_state[a_key] = initial[0]
-
+    
         if b_key not in st.session_state:
             st.session_state[b_key] = initial[1]
-
-        left, right = st.columns(2)
-
-        with left:
-            st.markdown(
-                f"""
-                <div class='court-card'>
-                    <div class='small-label'>Lapangan {court}</div>
-                    <p class='team-a'>
-                        🟢 {' & '.join(match['team_a'])}
-                    </p>
-                """,
-                unsafe_allow_html=True
+    
+        team_a = "".join(
+            f"<span>{player}</span>"
+            for player in match["team_a"]
+        )
+    
+        team_b = "".join(
+            f"<span>{player}</span>"
+            for player in match["team_b"]
+        )
+    
+        with st.container(border=True):
+    
+            card_left, score_a_col, dash, score_b_col, card_right = st.columns(
+                [4.2, 1, .35, 1, 4.2]
             )
-
-            score_a = st.number_input(
-                f"Skor hijau · L{court}",
-                min_value=0,
-                max_value=TOTAL_SCORE,
-                key=a_key
-            )
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        with right:
-            st.markdown(
-                f"""
-                <div class='court-card'>
-                    <div class='small-label'>Lapangan {court}</div>
-                    <p class='team-b'>
-                        🔵 {' & '.join(match['team_b'])}
-                    </p>
-                """,
-                unsafe_allow_html=True
-            )
-
-            score_b = st.number_input(
-                f"Skor biru · L{court}",
-                min_value=0,
-                max_value=TOTAL_SCORE,
-                key=b_key
-            )
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
+    
+            with card_left:
+                st.markdown(
+                    f"<div class='team'>{team_a}</div>",
+                    unsafe_allow_html=True
+                )
+    
+            with score_a_col:
+                score_a = st.number_input(
+                    f"Team A score {court}",
+                    0,
+                    TOTAL_SCORE,
+                    key=a_key,
+                    label_visibility="collapsed"
+                )
+    
+            with dash:
+                st.markdown(
+                    "<div class='score-separator'>—</div>",
+                    unsafe_allow_html=True
+                )
+    
+            with score_b_col:
+                score_b = st.number_input(
+                    f"Team B score {court}",
+                    0,
+                    TOTAL_SCORE,
+                    key=b_key,
+                    label_visibility="collapsed"
+                )
+    
+            with card_right:
+                st.markdown(
+                    f"<div class='team team-right'>{team_b}</div>",
+                    unsafe_allow_html=True
+                )
+    
         scores.append((score_a, score_b))
 
 
@@ -554,37 +645,46 @@ elif state()["screen"] == "playing":
     st.subheader("Klasemen live")
     st.dataframe(standings(), use_container_width=True)
 
-    with st.expander("Pengaturan sesi"):
-        st.warning(
-            "Jika pertandingan diakhiri, seluruh data sesi saat ini "
-            "akan dihapus dan kamu harus memasukkan nama pemain lagi."
-        )
-
-        if st.button(
-            "Akhiri pertandingan & mulai sesi baru",
-            type="secondary",
-            use_container_width=True
-        ):
-            reset()
-            st.rerun()
+   if st.button(
+    "GAME OVER",
+    type="secondary",
+    use_container_width=True
+):
+    s["screen"] = "finished"
+    persist()
+    st.rerun()
 
 
 else:
-    st.balloons()
-    st.subheader("🏆 Sesi selesai!")
+    st.markdown(
+        "<div class='standings-wrap'>"
+        "<div class='eyebrow'>Tournament complete</div>"
+        "<h1>STANDINGS</h1>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     table = standings()
 
     if not table.empty:
-        st.success(
-            f"Juara hari ini: **{table.iloc[0]['Pemain']}** — selamat! 🎉"
+        st.markdown(
+            f"<div class='winner'>"
+            f"#1 {table.iloc[0]['Pemain']}"
+            f"</div>",
+            unsafe_allow_html=True
         )
-        st.dataframe(table, use_container_width=True)
+
+        st.dataframe(
+            table,
+            use_container_width=True,
+            hide_index=False
+        )
 
     if st.button(
-        "Buat sesi baru",
+        "NEW GAME",
         type="primary",
         use_container_width=True
     ):
         reset()
+        st.session_state.draft_players = []
         st.rerun()
