@@ -641,18 +641,21 @@ elif state()["screen"] == "playing":
             save_round(scores)
             st.rerun()
         
-        st.divider()
+    st.divider()
     st.subheader("Klasemen live")
-    st.dataframe(standings(), use_container_width=True)
+    st.dataframe(
+        standings(),
+        use_container_width=True
+    )
 
-   if st.button(
-    "GAME OVER",
-    type="secondary",
-    use_container_width=True
-):
-    s["screen"] = "finished"
-    persist()
-    st.rerun()
+    if st.button(
+        "GAME OVER",
+        type="secondary",
+        use_container_width=True
+    ):
+        s["screen"] = "finished"
+        persist()
+        st.rerun()
 
 
 else:
