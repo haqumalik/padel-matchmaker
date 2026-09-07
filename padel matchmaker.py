@@ -384,7 +384,7 @@ if state()["screen"] == "setup":
     st.subheader("Mulai sesi baru")
     st.caption("Masukkan pemain, jumlah lapangan, dan berapa kali setiap pemain perlu bertemu pemain lain.")
     name = st.text_input("Nama sesi", value=state()["event_name"])
-    names_text = st.text_area("Daftar pemain", placeholder="Satu nama per baris\nAlya\nBima\nCitra", height=190)
+    names_text = st.text_area("Daftar pemain", placeholder="Satu nama per baris\nMalik\nSakti\nJeki", height=190)
     left, right = st.columns(2)
     with left:
         courts = st.selectbox("Lapangan aktif", [1, 2, 3])
